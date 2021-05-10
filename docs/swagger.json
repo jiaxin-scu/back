@@ -1,0 +1,10 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "简介",
+    "title": "项目名",
+    "contact": {},
+    "version": "版本"
+  },
+  "paths": {}
+}

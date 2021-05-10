@@ -1,0 +1,7 @@
+info:
+  contact: { }
+  description: 简介
+  title: 项目名
+  version: 版本
+paths: { }
+swagger: "2.0"
