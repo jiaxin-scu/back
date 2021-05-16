@@ -1,10 +1,498 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "简介",
-    "title": "项目名",
+    "description": "基于 go 实现的后端，用于处理与保存人脸识别相关信息",
+    "title": "项目管理-人脸识别签到系统",
     "contact": {},
-    "version": "版本"
+    "version": "0.0.1"
   },
-  "paths": {}
+  "paths": {
+    "/course/list": {
+      "get": {
+        "description": "基于老师id、教室id 查询课程",
+        "tags": [
+          "课程"
+        ],
+        "summary": "查询课程",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "老师id，非必要",
+            "name": "teacherId",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "教室id，非必要",
+            "name": "classRoomId",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "页号",
+            "name": "pageNumber",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "页大小",
+            "name": "pageSize",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/result.Result"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/course/student/list": {
+      "get": {
+        "description": "基于学生id 查询课程",
+        "tags": [
+          "课程"
+        ],
+        "summary": "查询课程",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "学生id",
+            "name": "studentId",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "页号",
+            "name": "pageNumber",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "页大小",
+            "name": "pageSize",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/result.Result"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/record": {
+      "post": {
+        "description": "基于学生id、教室id 插入记录",
+        "tags": [
+          "记录"
+        ],
+        "summary": "创建记录",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "学生id",
+            "name": "studentId",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "教室id",
+            "name": "classRoomId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/result.Result"
+            }
+          }
+        }
+      }
+    },
+    "/record/list": {
+      "get": {
+        "description": "基于学生id、课程id 查询记录",
+        "tags": [
+          "记录"
+        ],
+        "summary": "查询记录",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "课程id，非必须",
+            "name": "courseId",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "日期，格式为YYYY-MM-DD，非必须",
+            "name": "date",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "页号，从一开始",
+            "name": "pageNumber",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "页大小",
+            "name": "pageSize",
+            "in": "query",
+            "required": true
+          },
+          {
+            "type": "integer",
+            "description": "学生id，非必须",
+            "name": "studentId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/result.Result"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/student": {
+      "put": {
+        "description": "基于学生 ID 更新学生信息，需要更新哪些填写哪些信息，ID 是必要的",
+        "tags": [
+          "学生"
+        ],
+        "summary": "更新学生信息",
+        "parameters": [
+          {
+            "description": "学生",
+            "name": "student",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/models.Student"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/result.Result"
+            }
+          }
+        }
+      }
+    },
+    "/student/list": {
+      "get": {
+        "description": "分页获取学生列表",
+        "tags": [
+          "学生"
+        ],
+        "summary": "获取学生列表",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "页号",
+            "name": "pageNumber",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "页大小",
+            "name": "pageSize",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/result.Result"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/student/{id}": {
+      "get": {
+        "description": "基于学生 id 获取学生信息",
+        "tags": [
+          "学生"
+        ],
+        "summary": "获取学生",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "学生id",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/result.Result"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/models.Student"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/teacher": {
+      "put": {
+        "description": "基于老师 ID 更新老师信息，需要更新哪些填写哪些信息，ID 是必要的",
+        "tags": [
+          "老师"
+        ],
+        "summary": "更新老师信息",
+        "parameters": [
+          {
+            "description": "老师",
+            "name": "pageNumber",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/models.Teacher"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/result.Result"
+            }
+          }
+        }
+      }
+    },
+    "/teacher/list": {
+      "get": {
+        "description": "分页获取老师列表",
+        "tags": [
+          "老师"
+        ],
+        "summary": "获取老师列表",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "页号",
+            "name": "pageNumber",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "页大小",
+            "name": "pageSize",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/result.Result"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": true
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "/teacher/{id}": {
+      "get": {
+        "description": "基于老师 id 获取老师信息",
+        "tags": [
+          "老师"
+        ],
+        "summary": "获取老师",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "老师id",
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/result.Result"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/models.Teacher"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "models.Student": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "age": {
+          "type": "integer"
+        },
+        "grade": {
+          "description": "年级",
+          "type": "integer"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "major": {
+          "description": "专业",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "models.Teacher": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "gender": {
+          "description": "性别，false 表示男，true 表示女",
+          "type": "boolean"
+        },
+        "grade": {
+          "description": "年级",
+          "type": "integer"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "major": {
+          "description": "专业",
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "result.Result": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "description": "状态码\n2xx 表示请求成功，3xx 表示重定向，4xx 表示客户端错误，5xx 表示服务端错误",
+          "type": "integer"
+        },
+        "data": {
+          "description": "数据",
+          "type": "object"
+        },
+        "msg": {
+          "description": "状态码描述信息",
+          "type": "string"
+        }
+      }
+    }
+  }
 }

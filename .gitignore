@@ -20,3 +20,4 @@ vendor/
 
 conf/bootstrap.yaml
 logs/
+main

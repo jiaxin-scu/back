@@ -6,9 +6,11 @@
 package routers
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
+	"github.com/unrolled/secure"
 	"go.uber.org/zap"
 	"net"
 	"net/http"
@@ -19,6 +21,7 @@ import (
 	"strings"
 	_ "structure/docs"
 	"structure/pkg/logger"
+	"structure/pkg/result"
 	"structure/pkg/setting"
 	"time"
 )
@@ -31,18 +34,45 @@ func init() {
 	if setting.ServerSetting.EnableLogger {
 		router.Use(ginLogger(logger.Logger()))
 	}
-
 	if setting.ServerSetting.EnableRecovery {
 		router.Use(ginRecovery(logger.Logger(), true))
 	}
+	if setting.ServerSetting.CrossDomain {
+		router.Use(Cors())
+	}
+	if setting.ServerSetting.Ssl {
+		router.Use(TlsHandler())
+	}
 
-	router.StaticFile("/favicon.ico", "./static/favicon.ico")
+	router.NoRoute(noRoute)
+	router.NoMethod(noMethod)
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
 func Run() {
-	if err := router.Run(setting.ServerSetting.Ip + ":" + strconv.Itoa(setting.ServerSetting.Port)); err != nil {
-		panic("运行失败")
+	router.POST("/record", insertRecord)
+	router.GET("/record/list", getRecords)
+
+	router.GET("/course/student/list", getStudentList)
+	router.GET("/course/list", getCourses)
+
+	router.GET("/student/:id", getStudent)
+	router.GET("/student/list", getStudentList)
+	router.PUT("/student", updateStudent)
+
+	router.GET("/teacher/:id", getTeacher)
+	router.GET("/teacher/list", getTeacherList)
+	router.PUT("/teacher", updateTeacher)
+
+	if setting.ServerSetting.Ssl {
+		if err := router.RunTLS(setting.ServerSetting.Ip+":"+strconv.Itoa(setting.ServerSetting.Port), setting.ServerSetting.SslPemPath, setting.ServerSetting.SslKeyPath); err != nil {
+			panic("运行失败")
+		}
+	} else {
+		if err := router.Run(setting.ServerSetting.Ip + ":" + strconv.Itoa(setting.ServerSetting.Port)); err != nil {
+			panic("运行失败")
+		}
 	}
 }
 
@@ -113,4 +143,64 @@ func ginRecovery(logger *zap.Logger, stack bool) gin.HandlerFunc {
 		}()
 		c.Next()
 	}
+}
+
+// 跨域
+func Cors() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		method := c.Request.Method
+		origin := c.Request.Header.Get("Origin") //请求头部
+		if origin != "" {
+			//接收客户端发送的origin （重要！）
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+			//服务器支持的所有跨域请求的方法
+			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE,UPDATE")
+			//允许跨域设置可以返回其他子段，可以自定义字段
+			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Length, X-CSRF-Token, Token,session")
+			// 允许浏览器（客户端）可以解析的头部 （重要）
+			c.Header("Access-Control-Expose-Headers", "Content-Length, Access-Control-Allow-Origin, Access-Control-Allow-Headers")
+			//设置缓存时间
+			c.Header("Access-Control-Max-Age", "172800")
+			//允许客户端传递校验信息比如 cookie (重要)
+			c.Header("Access-Control-Allow-Credentials", "true")
+		}
+
+		//允许类型校验
+		if method == "OPTIONS" {
+			c.JSON(http.StatusOK, "ok")
+		}
+
+		defer func() {
+			if err := recover(); err != nil {
+				panic("跨域中间件出问题了，" + fmt.Sprintf("%v", err))
+			}
+		}()
+
+		c.Next()
+	}
+}
+
+// 引入 HTTPS
+func TlsHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		secureMiddleware := secure.New(secure.Options{
+			SSLRedirect: true,
+			SSLHost:     setting.ServerSetting.Ip + ":" + strconv.Itoa(setting.ServerSetting.Port),
+		})
+		err := secureMiddleware.Process(c.Writer, c.Request)
+		if err != nil {
+			return
+		}
+		c.Next()
+	}
+}
+
+// 处理 404 请求
+func noRoute(context *gin.Context) {
+	context.JSON(http.StatusOK, result.Any(404, "无相应 url，请检查请求路径是否设置正确", nil))
+}
+
+// 处理 405 请求
+func noMethod(context *gin.Context) {
+	context.JSON(http.StatusOK, result.Any(405, "无对应 method，请检查请求方式是否设置正确", nil))
 }

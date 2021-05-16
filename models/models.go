@@ -1,14 +1,11 @@
-// description: 用于初始化 gorm.DB
-//
-// author: vignetting
-// time: 2021/5/10
-
 package models
 
 import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
+	"moul.io/zapgorm2"
+	zapLog "structure/pkg/logger"
 	"structure/pkg/setting"
 )
 
@@ -16,9 +13,13 @@ var db *gorm.DB
 
 func SetUp() {
 	var err error
+	var log = zapgorm2.New(zapLog.Logger())
+	log.SetAsDefault()
+
 	if db, err = gorm.Open(mysql.Open(setting.DatabaseSetting.Url), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,                                       // 不创建外键
 		NamingStrategy:                           schema.NamingStrategy{SingularTable: true}, // 不让表名自动加 s
+		Logger:                                   log,
 	}); err != nil {
 		panic("数据库连接创建失败，" + err.Error())
 	} else {
@@ -38,4 +39,5 @@ func SetUp() {
 			sqlDB.SetConnMaxLifetime(setting.DatabaseSetting.MaxLifeTime)
 		}
 	}
+
 }

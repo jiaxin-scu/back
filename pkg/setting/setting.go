@@ -36,10 +36,14 @@ type Mail struct {
 var MailSetting = &Mail{}
 
 type Server struct {
-	Ip             string `validate:"ipv4"`
-	Port           int    `validate:"min=0,max=65535"`
+	Ip             string
+	Port           int
+	CrossDomain    bool
 	EnableLogger   bool
 	EnableRecovery bool
+	Ssl            bool
+	SslPemPath     string
+	SslKeyPath     string
 }
 
 var ServerSetting = &Server{}
@@ -64,21 +68,25 @@ func Setup() {
 	v.AddConfigPath("./conf/")
 
 	// 3. 设置默认值
-	v.Set("log.level", "info")
-	v.Set("log.filePath", "./logs/info.log")
-	v.Set("log.fileMaxSize", 32)
-	v.Set("log.maxBackups", 0)
-	v.Set("log.maxRetentionTime", 0)
-	v.Set("log.compress", true)
-	v.Set("log.developerMode", false)
+	v.SetDefault("log.level", "info")
+	v.SetDefault("log.filePath", "./logs/info.log")
+	v.SetDefault("log.fileMaxSize", 32)
+	v.SetDefault("log.maxBackups", 0)
+	v.SetDefault("log.maxRetentionTime", 0)
+	v.SetDefault("log.compress", true)
+	v.SetDefault("log.developerMode", false)
 
 	v.SetDefault("mail.poolSize", runtime.NumCPU()/2+1)
 	v.SetDefault("mail.timeout", 3000000000)
 
-	v.SetDefault("server.ip", "127.0.0.1")
+	v.SetDefault("server.ip", "")
 	v.SetDefault("server.port", 8080)
+	v.SetDefault("server.crossDomain", true)
 	v.SetDefault("server.enableLogger", true)
 	v.SetDefault("server.enableRecovery", true)
+	v.SetDefault("server.ssl", false)
+	v.SetDefault("server.sslPemPath", "./ssl/ssl.pem")
+	v.SetDefault("server.sslKeyPath", "./ssl/ssl.key")
 
 	v.SetDefault("database.maxIdleConnection", runtime.NumCPU())
 	v.SetDefault("database.maxIdleConnection", 2*runtime.NumCPU())

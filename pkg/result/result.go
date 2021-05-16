@@ -54,15 +54,6 @@ func Forbidden(message string, data interface{}) *Result {
 	}
 }
 
-// description: 用户访问的资源部存在
-func NotFound(message string, data interface{}) *Result {
-	return &Result{
-		Code: 404,
-		Msg:  message,
-		Data: data,
-	}
-}
-
 // description: 服务端发送错误
 func Error(message string, data interface{}) *Result {
 	return &Result{
@@ -82,7 +73,7 @@ func Unavailable(message string, data interface{}) *Result {
 }
 
 // description: 通用
-func common(code int, message string, data interface{}) *Result {
+func Any(code int, message string, data interface{}) *Result {
 	return &Result{
 		Code: code,
 		Msg:  message,

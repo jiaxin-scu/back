@@ -3,7 +3,7 @@
 // author: vignetting
 // time: 2021/5/10
 
-package error
+package e
 
 import "strconv"
 
@@ -25,7 +25,7 @@ func Fail(cause string) error {
 }
 
 // description: 服务端错误运行而产生的 error
-func Error(cause string) error {
+func Fatal(cause string) error {
 	return &VError{Code: 500, Cause: cause}
 }
 

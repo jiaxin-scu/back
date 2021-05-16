@@ -20,9 +20,9 @@ func init() {
 	models.SetUp()
 }
 
-// @title 			项目名
-// @version 		版本
-// @description 	简介
+// @title 			项目管理-人脸识别签到系统
+// @version 		0.0.1
+// @description 	基于 go 实现的后端，用于处理与保存人脸识别相关信息
 // @basePath		/
 func main() {
 	routers.Run()
